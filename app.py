@@ -574,7 +574,6 @@ elif page == "02. Data Readiness (Parte 1)":
         <div class="highlight-box-danger">
             <h4 style="color: #ef4444; margin-top: 0;">B. Outcome Ruidoso</h4>
             <p class="bullet-item">Win/Loss inconsistente entre sistemas</p>
-            <p class="bullet-item">~40% de expirados terminan ganados bajo otro quote_id</p>
             <p class="bullet-item">Re-quoted = 15.84% de outcomes</p>
         </div>
         """, unsafe_allow_html=True)
@@ -792,8 +791,7 @@ elif page == "04. Enfoque de Optimización (Parte 1)":
         """, unsafe_allow_html=True)
         st.markdown("""
         <div class="highlight-box-danger" style="padding: 1rem;">
-            <strong>Problema actual:</strong> Drift -3.87%, 100% termina<br>
-            por debajo del quote. Sin control no llegas a 20% GM
+            <strong>Problema actual:</strong> Drift -3.87%, Sin control no llegas a 20% GM
         </div>
         """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -871,7 +869,7 @@ elif page == "05. Enfoque de Optimización (Parte 2)":
     
     with col6:
         st.markdown('<div class="slide-container">', unsafe_allow_html=True)
-        st.markdown('<h3 style="color: #ef4444; font-family: Crimson Pro, serif;">Lo que NO Recomendamos (Aun)</h3>', unsafe_allow_html=True)
+        st.markdown('<h3 style="color: #ef4444; font-family: Crimson Pro, serif;">No recomendado (Aún)</h3>', unsafe_allow_html=True)
         
         st.markdown("""
         <div class="highlight-box-danger">
@@ -899,9 +897,8 @@ elif page == "05. Enfoque de Optimización (Parte 2)":
     st.markdown("""
     <div class="slide-container" style="text-align: center; border: 2px solid #10b981;">
         <p style="font-size: 1.1rem; font-style: italic; color: #cbd5e1; margin: 0;">
-            "We replaced heuristic discounting with a risk-ranked pricing policy. Instead of approving 
-            everything above a threshold, we approve only the riskiest 5% of deals. This increased 
-            invoice GM from ~18.5% to ~22%, while reducing price erosion by ~70%."
+            "Reemplazamos el descuento heurístico por una política de precios basada en ranking de riesgo. En lugar de aprobar todo lo que supera un umbral,
+            solo aprobamos el 5% de las operaciones con mayor riesgo. Esto incrementó el margen bruto facturado (invoice GM) de ~18.5% a ~22%, al mismo tiempo que redujo la erosión de precios en ~70%."
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -922,7 +919,7 @@ elif page == "06. Validation & Testing":
         st.markdown('<div class="slide-container">', unsafe_allow_html=True)
         st.markdown('<h3 style="color: #3b82f6; font-family: Crimson Pro, serif;">Fase 1: Validacion Offline</h3>', unsafe_allow_html=True)
         
-        st.markdown('<p class="section-title">Backtesting: "Que habria pasado si...?"</p>', unsafe_allow_html=True)
+        st.markdown('<p class="section-title">Backtesting: "Qué habría pasado si...?"</p>', unsafe_allow_html=True)
         st.markdown('<p style="color: #cbd5e1;">Simular el nuevo sistema usando datos historicos, sin afectar operaciones.</p>', unsafe_allow_html=True)
         st.markdown("""
         <p class="bullet-item">Tomar deals historicos</p>
@@ -947,14 +944,14 @@ elif page == "06. Validation & Testing":
         st.markdown('<div class="slide-container">', unsafe_allow_html=True)
         st.markdown('<h3 style="color: #f59e0b; font-family: Crimson Pro, serif;">Fase 2: Champion / Challenger</h3>', unsafe_allow_html=True)
         
-        st.markdown('<p class="section-title">Que es?</p>', unsafe_allow_html=True)
+        st.markdown('<p class="section-title">Qué es?</p>', unsafe_allow_html=True)
         st.markdown("""
         <p style="color: #cbd5e1;"><strong style="color: #10b981;">Champion</strong> = proceso actual de precios<br>
         <strong style="color: #3b82f6;">Challenger</strong> = nuevo sistema</p>
         <p style="color: #cbd5e1;">Ambos conviven al mismo tiempo, en una parte del negocio, durante tiempo limitado.</p>
         """, unsafe_allow_html=True)
         
-        st.markdown('<p class="section-title">Implementacion Practica</p>', unsafe_allow_html=True)
+        st.markdown('<p class="section-title">Implementación Práctica</p>', unsafe_allow_html=True)
         st.markdown("""
         <p class="bullet-item">De cada 10 cotizaciones: 8 Champion, 2 Challenger</p>
         <p class="bullet-item">Asignacion aleatoria, balanceando segmentos</p>
@@ -1126,9 +1123,8 @@ elif page == "07. Riesgos y Mitigación":
         <div class="slide-container" style="border: 2px solid #3b82f6;">
             <h4 style="color: #3b82f6;">Mensaje para Stakeholders</h4>
             <p style="font-style: italic; font-size: 0.9rem; color: #cbd5e1;">
-                "The main risks are sales resistance, data quality concerns, and operational friction. 
-                We mitigate these by design: the system does not replace sales judgment, limits approvals 
-                to the riskiest 5% of deals, and is robust to imperfect data."
+                “Los principales riesgos son la resistencia del equipo comercial, las preocupaciones sobre la calidad de los datos y la fricción operativa. 
+                Estos riesgos se mitigan desde el diseño: el sistema no reemplaza el criterio comercial, limita las aprobaciones únicamente al 5% de las operaciones más riesgosas y es robusto frente a datos imperfectos.”
             </p>
             <p style="font-style: italic; font-size: 0.9rem; margin-top: 1rem; color: #cbd5e1;">
                 "It reduces price erosion, protects margin, and preserves sales velocity."
