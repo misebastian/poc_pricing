@@ -1,6 +1,7 @@
 """
 ACERO INDUSTRIAL - Sistema de Optimización de Precios
-Aplicación Streamlit con presentación y herramienta de cotización
+Aplicación Streamlit con presentación ejecutiva y herramienta de cotización
+8 Slides: Intro + 4 Puntos (6 slides) + Demo
 """
 
 import streamlit as st
@@ -89,6 +90,11 @@ st.markdown("""
     .metric-card-purple {
         background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
         box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    }
+    
+    .metric-card-red {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
     }
     
     .metric-label {
@@ -192,6 +198,11 @@ st.markdown("""
         border: 1px solid #ef4444;
     }
     
+    .highlight-box-blue {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid #3b82f6;
+    }
+    
     /* Data table styling */
     .data-table {
         background: rgba(30, 41, 59, 0.6);
@@ -241,6 +252,11 @@ st.markdown("""
     .text-blue { color: #3b82f6; }
     .text-slate { color: #94a3b8; }
     .text-white { color: #f1f5f9; }
+    
+    /* Status badges */
+    .status-check { color: #10b981; font-weight: bold; }
+    .status-warning { color: #f59e0b; font-weight: bold; }
+    .status-danger { color: #ef4444; font-weight: bold; }
     
 </style>
 """, unsafe_allow_html=True)
@@ -401,13 +417,17 @@ def simulate_scenarios(guidance, quantity):
         margin_per_unit = price - guidance['cost']
         margin_pct = margin_per_unit / price * 100 if price > 0 else 0
         
-        # Simular probabilidad de ganar (simplificada)
+        # Simular probabilidad de ganar (basado en datos reales)
         if discount < 5:
-            win_prob = 0.65 + (5 - discount) * 0.02
+            win_prob = 0.80
+        elif discount <= 10:
+            win_prob = 0.80 - (discount - 5) * 0.01
         elif discount <= 15:
-            win_prob = 0.85 - (discount - 5) * 0.01
+            win_prob = 0.75 - (discount - 10) * 0.04
+        elif discount <= 20:
+            win_prob = 0.54 - (discount - 15) * 0.04
         else:
-            win_prob = max(0.35, 0.85 - (discount - 5) * 0.03)
+            win_prob = max(0.35, 0.35 + (discount - 20) * 0.01)
         
         win_prob = max(0.15, min(0.95, win_prob))
         
@@ -443,8 +463,14 @@ st.sidebar.markdown("""
 
 page = st.sidebar.radio(
     "Navegación",
-    ["01. Presentación", "02. Problema de Endogeneidad", "03. Confiabilidad del Outcome", 
-     "04. Reglas vs ML", "05. Sistema de Guardrails", "06. Herramienta de Cotización"],
+    ["01. Resumen Ejecutivo",
+     "02. Data Readiness (Parte 1)", 
+     "03. Data Readiness (Parte 2)",
+     "04. Enfoque de Optimización (Parte 1)",
+     "05. Enfoque de Optimización (Parte 2)",
+     "06. Validation & Testing",
+     "07. Riesgos y Mitigación",
+     "08. Demo del Sistema"],
     label_visibility="collapsed"
 )
 
@@ -459,10 +485,10 @@ st.sidebar.markdown("""
 
 
 # =============================================================================
-# PÁGINA 1: PRESENTACIÓN
+# SLIDE 1: RESUMEN EJECUTIVO
 # =============================================================================
 
-if page == "01. Presentación":
+if page == "01. Resumen Ejecutivo":
     st.markdown('<p class="main-title">Acero Industrial</p>', unsafe_allow_html=True)
     st.markdown('<p class="subtitle">Evaluación de Preparación de Datos para Optimización de Precios</p>', unsafe_allow_html=True)
     
@@ -473,488 +499,730 @@ if page == "01. Presentación":
     with col1:
         st.markdown("""
         <div class="slide-container">
-            <p class="slide-number">Slide 01 / 06</p>
+            <p class="slide-number">Slide 01 / 08</p>
             <h2 class="slide-title">Resumen Ejecutivo</h2>
             <div class="slide-content">
                 <h3>Contexto del Proyecto</h3>
                 <ul>
-                    <li>Distribuidor de acero colombiano con $185M en ingresos</li>
-                    <li>Margen actual: 18.2% vs objetivo: 20%</li>
+                    <li>Distribuidor de acero colombiano con <strong>$185M</strong> en ingresos</li>
+                    <li>Margen actual: <strong>18.2%</strong> vs objetivo: <strong>20%</strong></li>
                     <li>823 clientes, 4,847 SKUs, 42 representantes de ventas</li>
-                    <li>Sistema PriceFx implementado pero sin optimización</li>
+                    <li>Sistema PriceFx implementado pero sin optimización efectiva</li>
                 </ul>
                 
                 <h3>Hallazgo Principal</h3>
                 <div class="highlight-box">
                     <strong style="color: #10b981;">Los datos reflejan comportamiento PRE-OPTIMIZACIÓN.</strong><br>
                     Entrenar un modelo ML replicaría las ineficiencias actuales, no las corregiría.
+                    Un enfoque de guardrails + reglas es más efectivo para este contexto.
                 </div>
                 
-                <h3>Recomendación</h3>
+                <h3>Resultado del Sistema Propuesto</h3>
                 <ul>
-                    <li>Implementar guardrails basados en reglas (no ML)</li>
-                    <li>Validar con pruebas A/B controladas</li>
-                    <li>Reconsiderar ML solo después de datos limpios experimentales</li>
+                    <li>GM Invoice: <strong>~22%</strong> (vs target 20%) ✅</li>
+                    <li>Aprobaciones humanas: solo <strong>5%</strong> de deals</li>
+                    <li>Reducción de erosión: <strong>~70%</strong></li>
+                    <li>22% de deals sin descuento (antes: descuento "por defecto")</li>
                 </ul>
             </div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
-        # Métricas clave
+        # Métricas clave del resultado
         st.markdown("""
         <div class="metric-card metric-card-green">
-            <p class="metric-label">Transacciones Analizadas</p>
-            <p class="metric-value">5,000</p>
-            <p class="metric-subtitle">12 meses de datos</p>
+            <p class="metric-label">GM Invoice Final</p>
+            <p class="metric-value">22.17%</p>
+            <p class="metric-subtitle">Target: 20% ✅</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="metric-card metric-card-blue">
-            <p class="metric-label">Segmentos de Cliente</p>
-            <p class="metric-value">52</p>
-            <p class="metric-subtitle">Combinaciones únicas</p>
+            <p class="metric-label">Aprobaciones Humanas</p>
+            <p class="metric-value">5%</p>
+            <p class="metric-subtitle">Solo deals de alto riesgo</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="metric-card metric-card-orange">
-            <p class="metric-label">Discrepancia Win Rate</p>
-            <p class="metric-value">40pp</p>
-            <p class="metric-subtitle">75% observado vs 35% reportado</p>
+            <p class="metric-label">Reducción de Drift</p>
+            <p class="metric-value">-70%</p>
+            <p class="metric-subtitle">De -3.8% a -1.1%</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="metric-card metric-card-purple">
-            <p class="metric-label">Score de Preparación</p>
-            <p class="metric-value">76%</p>
-            <p class="metric-subtitle">Grado C - Limitaciones para ML</p>
+            <p class="metric-label">Deals Sin Descuento</p>
+            <p class="metric-value">22.5%</p>
+            <p class="metric-subtitle">1 de cada 4 deals</p>
         </div>
         """, unsafe_allow_html=True)
 
 
 # =============================================================================
-# PÁGINA 2: ENDOGENEIDAD
+# SLIDE 2: DATA READINESS (PARTE 1)
 # =============================================================================
 
-elif page == "02. Problema de Endogeneidad":
-    st.markdown('<p class="slide-number">Slide 02 / 06</p>', unsafe_allow_html=True)
-    st.markdown('<h1 class="slide-title">El Problema de Endogeneidad</h1>', unsafe_allow_html=True)
+elif page == "02. Data Readiness (Parte 1)":
+    st.markdown('<p class="slide-number">Slide 02 / 08</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="slide-title">1. Data Readiness Assessment (Parte 1)</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle" style="font-size: 1rem;">Qué datos son usables y qué falta</p>', unsafe_allow_html=True)
     
     col1, col2 = st.columns([1, 1])
     
     with col1:
         st.markdown("""
         <div class="slide-container">
-            <h3 style="color: #3b82f6; font-family: 'Crimson Pro', serif;">¿Qué es la Endogeneidad?</h3>
+            <h3 style="color: #10b981; font-family: 'Crimson Pro', serif;">✅ Datos Usables (Para Empezar Ya)</h3>
             <div class="slide-content">
-                <p>La endogeneidad ocurre cuando la variable explicativa (descuento) está correlacionada 
-                con el término de error en la ecuación de resultado.</p>
+                <h4 style="color: #3b82f6;">A. Integridad y Consistencia Aritmética</h4>
+                <ul>
+                    <li>0 nulos en columnas clave (customer/product/price/cost/outcome)</li>
+                    <li>Identidades contables consistentes:<br>
+                        <code style="color: #10b981;">extended_amount = quantity × unit_price</code><br>
+                        <code style="color: #10b981;">margin_dollars = extended_amount - total_cost</code>
+                    </li>
+                </ul>
+                
+                <h4 style="color: #3b82f6;">B. Señal Suficiente para Segmentación</h4>
+                <ul>
+                    <li>200 clientes, 24 productos en el extracto</li>
+                    <li>Segmentos y tiers bien poblados (Manufacturing/Construction/Other)</li>
+                    <li>Permite arrancar con pricing por segmentos</li>
+                </ul>
+                
+                <h4 style="color: #3b82f6;">C. Variación Real en Descuentos</h4>
+                <ul>
+                    <li>Rango de descuento: <strong>0% a 29.2%</strong></li>
+                    <li>12 deals con descuento 0% → confirma que NO siempre debe haber descuento</li>
+                    <li>Permite construir curvas descuento → win_prob</li>
+                </ul>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="slide-container">
+            <h3 style="color: #f59e0b; font-family: 'Crimson Pro', serif;">⚠️ Qué Falta o Preocupa</h3>
+            <div class="slide-content">
+                <div class="highlight-box-warning">
+                    <h4 style="color: #f59e0b; margin-top: 0;">A. Endogeneidad (Core)</h4>
+                    <p>Los datos reflejan comportamiento <strong>pre-optimización</strong>. 
+                    Un ML naïve imitará patrones, no los corregirá.</p>
+                </div>
+                
+                <div class="highlight-box-danger">
+                    <h4 style="color: #ef4444; margin-top: 0;">B. Outcome Ruidoso</h4>
+                    <ul style="margin: 0; padding-left: 1rem;">
+                        <li>Win/Loss inconsistente entre sistemas</li>
+                        <li>~40% de expirados terminan ganados bajo otro quote_id</li>
+                        <li>Re-quoted = 15.84% de outcomes</li>
+                    </ul>
+                </div>
                 
                 <div class="highlight-box-warning">
-                    <strong style="color: #f59e0b;">Observación Clave:</strong><br>
-                    Los deals perdidos tienen descuentos MÁS ALTOS que los ganados.
+                    <h4 style="color: #f59e0b; margin-top: 0;">C. Quote-to-Invoice Drift</h4>
+                    <ul style="margin: 0; padding-left: 1rem;">
+                        <li>Drift promedio: <strong>-3.87%</strong></li>
+                        <li>87.78% de deals con |drift| > 1%</li>
+                        <li>El precio facturado siempre < quoted</li>
+                    </ul>
                 </div>
-                
-                <h4 style="color: #10b981;">Evidencia Estadística:</h4>
-                <ul>
-                    <li>Descuento promedio en deals ganados: <strong>8.31%</strong></li>
-                    <li>Descuento promedio en deals perdidos: <strong>10.87%</strong></li>
-                    <li>Diferencia: <strong>2.56pp</strong></li>
-                    <li>T-test: t=-12.0, p < 10⁻³¹</li>
-                    <li>Cohen's d: 0.457 (efecto medio)</li>
-                </ul>
             </div>
         </div>
         """, unsafe_allow_html=True)
     
-    with col2:
-        # Gráfico de win rate por cuartil de descuento
-        quartile_data = pd.DataFrame({
-            'Cuartil': ['Q1 (Bajo)', 'Q2', 'Q3', 'Q4 (Alto)'],
-            'Descuento Promedio': [2.8, 6.7, 10.0, 16.3],
-            'Win Rate': [80.5, 80.5, 78.9, 61.1]
-        })
-        
-        fig = go.Figure()
-        
-        fig.add_trace(go.Bar(
-            name='Win Rate %',
-            x=quartile_data['Cuartil'],
-            y=quartile_data['Win Rate'],
-            marker_color=['#10b981', '#10b981', '#f59e0b', '#ef4444'],
-            text=[f"{v:.1f}%" for v in quartile_data['Win Rate']],
-            textposition='outside',
-            textfont=dict(size=14, color='white')
-        ))
-        
-        fig.update_layout(
-            title=dict(
-                text='Win Rate por Cuartil de Descuento',
-                font=dict(size=20, color='#10b981', family='Crimson Pro')
-            ),
-            xaxis_title='Cuartil de Descuento',
-            yaxis_title='Win Rate (%)',
-            plot_bgcolor='rgba(30, 41, 59, 0.6)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='#cbd5e1', family='Space Mono'),
-            yaxis=dict(range=[0, 100], gridcolor='#334155'),
-            xaxis=dict(gridcolor='#334155'),
-            showlegend=False,
-            height=400
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-    
+    # Gráfico de inconsistencia
     st.markdown("""
     <div class="slide-container">
-        <h3 style="color: #ef4444; font-family: 'Crimson Pro', serif;">El Mecanismo de Selección</h3>
-        <div class="slide-content">
-            <div class="highlight-box-danger">
-                <strong>Modelo de Decisión del Representante:</strong>
-                <ol style="padding-left: 1.5rem; margin-top: 1rem;">
-                    <li><strong>Observa señales</strong> sobre dificultad del deal (competencia, urgencia, relación)</li>
-                    <li><strong>Forma creencia</strong> sobre probabilidad de ganar: P(Win | señales)</li>
-                    <li><strong>Ajusta descuento</strong>: Si P(Win) es BAJA → Mayor descuento para "salvar" el deal</li>
-                    <li><strong>Resultado determinado</strong> por dificultad real + precio + factores aleatorios</li>
-                </ol>
-                
-                <p style="margin-top: 1rem;"><strong>Consecuencia:</strong></p>
-                <p>Observamos: Alto descuento → Bajo win rate</p>
-                <p>Pero la causalidad es: Alta dificultad → Alto descuento Y Bajo win rate</p>
-            </div>
-        </div>
+        <h3 style="color: #3b82f6; font-family: 'Crimson Pro', serif;">Evidencia de Variabilidad Injustificada</h3>
     </div>
     """, unsafe_allow_html=True)
-
-
-# =============================================================================
-# PÁGINA 3: CONFIABILIDAD DEL OUTCOME
-# =============================================================================
-
-elif page == "03. Confiabilidad del Outcome":
-    st.markdown('<p class="slide-number">Slide 03 / 06</p>', unsafe_allow_html=True)
-    st.markdown('<h1 class="slide-title">Confiabilidad de la Variable de Resultado</h1>', unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1, 1])
+    col3, col4 = st.columns([1, 1])
     
-    with col1:
-        st.markdown("""
-        <div class="slide-container">
-            <h3 style="color: #ef4444; font-family: 'Crimson Pro', serif;">Discrepancia Crítica</h3>
-            <div class="slide-content">
-                <div class="highlight-box-danger">
-                    <table style="width: 100%; color: white;">
-                        <tr>
-                            <td><strong>Win Rate Observado:</strong></td>
-                            <td style="text-align: right; font-size: 1.5rem;">75.3%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Win Rate Case Brief:</strong></td>
-                            <td style="text-align: right; font-size: 1.5rem;">35%</td>
-                        </tr>
-                        <tr style="border-top: 2px solid #ef4444;">
-                            <td><strong>Discrepancia:</strong></td>
-                            <td style="text-align: right; font-size: 1.5rem; color: #ef4444;">40.3pp</td>
-                        </tr>
-                    </table>
-                </div>
-                
-                <h4 style="color: #f59e0b; margin-top: 1.5rem;">Posibles Explicaciones:</h4>
-                <ul>
-                    <li><strong>Quote vs Opportunity:</strong> Múltiples cotizaciones por oportunidad</li>
-                    <li><strong>Re-quoted ambiguo:</strong> 15.8% de datos sin clasificar claramente</li>
-                    <li><strong>Sesgo de selección:</strong> Datos pueden excluir pérdidas históricas</li>
-                </ul>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        # Gráfico de distribución de outcomes
-        outcome_data = pd.DataFrame({
-            'Resultado': ['Won', 'Lost', 'Re-quoted'],
-            'Cantidad': [3167, 1041, 792],
-            'Porcentaje': [63.3, 20.8, 15.8]
-        })
-        
-        fig = go.Figure(data=[go.Pie(
-            labels=outcome_data['Resultado'],
-            values=outcome_data['Cantidad'],
-            hole=0.5,
-            marker_colors=['#10b981', '#ef4444', '#f59e0b'],
-            textinfo='label+percent',
-            textfont=dict(size=14, color='white')
-        )])
-        
-        fig.update_layout(
-            title=dict(
-                text='Distribución de Resultados',
-                font=dict(size=20, color='#10b981', family='Crimson Pro')
-            ),
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='#cbd5e1', family='Space Mono'),
-            height=350,
-            showlegend=True,
-            legend=dict(
-                font=dict(color='#cbd5e1'),
-                bgcolor='rgba(0,0,0,0)'
-            )
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-    
-    st.markdown("""
-    <div class="slide-container">
-        <h3 style="color: #3b82f6; font-family: 'Crimson Pro', serif;">Análisis de Transacciones Re-quoted</h3>
-        <div class="slide-content">
-            <p>Las transacciones Re-quoted (15.8%) son más similares a <strong style="color: #10b981;">Won</strong> que a <strong style="color: #ef4444;">Lost</strong>:</p>
-            
-            <table style="width: 100%; margin-top: 1rem; border-collapse: collapse;">
-                <tr style="border-bottom: 2px solid #334155;">
-                    <th style="text-align: left; padding: 0.75rem; color: #94a3b8;">Métrica</th>
-                    <th style="text-align: center; padding: 0.75rem; color: #10b981;">Won</th>
-                    <th style="text-align: center; padding: 0.75rem; color: #ef4444;">Lost</th>
-                    <th style="text-align: center; padding: 0.75rem; color: #f59e0b;">Re-quoted</th>
-                </tr>
-                <tr style="border-bottom: 1px solid #334155;">
-                    <td style="padding: 0.75rem;">Descuento Promedio</td>
-                    <td style="text-align: center; padding: 0.75rem;">8.31%</td>
-                    <td style="text-align: center; padding: 0.75rem;">10.87%</td>
-                    <td style="text-align: center; padding: 0.75rem;">7.74%</td>
-                </tr>
-                <tr>
-                    <td style="padding: 0.75rem;">Margen Promedio</td>
-                    <td style="text-align: center; padding: 0.75rem;">18.26%</td>
-                    <td style="text-align: center; padding: 0.75rem;">15.33%</td>
-                    <td style="text-align: center; padding: 0.75rem;">18.82%</td>
-                </tr>
-            </table>
-            
-            <div class="highlight-box" style="margin-top: 1.5rem;">
-                <strong style="color: #10b981;">Implicación:</strong> No se puede entrenar un modelo confiable de probabilidad de ganar 
-                hasta resolver la definición de outcome y la discrepancia de 40pp.
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-# =============================================================================
-# PÁGINA 4: REGLAS VS ML
-# =============================================================================
-
-elif page == "04. Reglas vs ML":
-    st.markdown('<p class="slide-number">Slide 04 / 06</p>', unsafe_allow_html=True)
-    st.markdown('<h1 class="slide-title">Enfoque Basado en Reglas vs Machine Learning</h1>', unsafe_allow_html=True)
-    
-    col1, col2 = st.columns([1, 1])
-    
-    with col1:
-        st.markdown("""
-        <div class="slide-container">
-            <h3 style="color: #10b981; font-family: 'Crimson Pro', serif;">Scores de Factibilidad</h3>
-            <div class="slide-content">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr style="border-bottom: 2px solid #10b981;">
-                        <th style="text-align: left; padding: 0.75rem; color: #94a3b8;">Enfoque</th>
-                        <th style="text-align: center; padding: 0.75rem; color: #94a3b8;">Score</th>
-                        <th style="text-align: center; padding: 0.75rem; color: #94a3b8;">Status</th>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #334155;">
-                        <td style="padding: 0.75rem;">Basado en Reglas</td>
-                        <td style="text-align: center; padding: 0.75rem; font-size: 1.25rem; color: #10b981;"><strong>90/100</strong></td>
-                        <td style="text-align: center; padding: 0.75rem;">✅ Recomendado</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #334155;">
-                        <td style="padding: 0.75rem;">ML Tradicional</td>
-                        <td style="text-align: center; padding: 0.75rem; font-size: 1.25rem; color: #f59e0b;"><strong>47/100</strong></td>
-                        <td style="text-align: center; padding: 0.75rem;">⚠️ No recomendado</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #334155;">
-                        <td style="padding: 0.75rem;">Reinforcement Learning</td>
-                        <td style="text-align: center; padding: 0.75rem; font-size: 1.25rem; color: #ef4444;"><strong>40/100</strong></td>
-                        <td style="text-align: center; padding: 0.75rem;">❌ No factible</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 0.75rem;">ML Causal</td>
-                        <td style="text-align: center; padding: 0.75rem; font-size: 1.25rem; color: #ef4444;"><strong>25/100</strong></td>
-                        <td style="text-align: center; padding: 0.75rem;">❌ No factible</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        # Gráfico de barras horizontal para scores
-        score_data = pd.DataFrame({
-            'Enfoque': ['Basado en Reglas', 'ML Tradicional', 'Reinforcement Learning', 'ML Causal'],
-            'Score': [90, 47, 40, 25]
+    with col3:
+        # Gráfico de rango de precio
+        inconsistency_data = pd.DataFrame({
+            'Métrica': ['Rango Precio > 5%', 'Std Descuento > 2pp', 'Margen Negativo', 'Descuento > 25%'],
+            'Porcentaje': [71.74, 76.81, 0.48, 0.44]
         })
         
         fig = go.Figure(go.Bar(
-            x=score_data['Score'],
-            y=score_data['Enfoque'],
+            x=inconsistency_data['Porcentaje'],
+            y=inconsistency_data['Métrica'],
             orientation='h',
-            marker_color=['#10b981', '#f59e0b', '#ef4444', '#ef4444'],
-            text=[f"{s}/100" for s in score_data['Score']],
+            marker_color=['#ef4444', '#ef4444', '#f59e0b', '#f59e0b'],
+            text=[f"{p:.1f}%" for p in inconsistency_data['Porcentaje']],
             textposition='inside',
-            textfont=dict(size=16, color='white')
+            textfont=dict(size=14, color='white')
         ))
         
         fig.update_layout(
             title=dict(
-                text='Factibilidad por Enfoque',
-                font=dict(size=20, color='#10b981', family='Crimson Pro')
+                text='Inconsistencia en Pares Cliente-Producto (≥3 txns)',
+                font=dict(size=16, color='#10b981', family='Crimson Pro')
             ),
-            xaxis_title='Score de Factibilidad',
+            xaxis_title='% de Pares',
             plot_bgcolor='rgba(30, 41, 59, 0.6)',
             paper_bgcolor='rgba(0,0,0,0)',
             font=dict(color='#cbd5e1', family='Space Mono'),
             xaxis=dict(range=[0, 100], gridcolor='#334155'),
             yaxis=dict(gridcolor='#334155'),
-            height=350
+            height=300
         )
         
         st.plotly_chart(fig, use_container_width=True)
     
-    st.markdown("""
-    <div class="slide-container">
-        <h3 style="color: #3b82f6; font-family: 'Crimson Pro', serif;">¿Por qué ML no Puede Resolver la Endogeneidad?</h3>
-        <div class="slide-content">
-            <div class="highlight-box-warning">
-                <strong style="color: #f59e0b;">Concepto Erróneo Común:</strong> "ML puede capturar patrones complejos que OLS pierde"
-                
-                <p style="margin-top: 1rem;"><strong>Realidad:</strong> Los algoritmos de ML son máquinas de correlación sofisticadas. NO pueden:</p>
-                <ul style="margin-top: 0.5rem;">
-                    <li>Distinguir correlación de causalidad</li>
-                    <li>Estimar efectos de tratamiento de datos observacionales</li>
-                    <li>Corregir sesgo por variable omitida</li>
-                    <li>Identificar la dirección de causalidad</li>
-                </ul>
-            </div>
-            
-            <h4 style="color: #10b981; margin-top: 1.5rem;">Lo que un Modelo ML Aprendería:</h4>
-            <p>"Cuando descuento > 15%, predecir pérdida"</p>
-            <p>"Cuando descuento < 8%, predecir ganancia"</p>
-            
-            <p style="margin-top: 1rem;"><strong style="color: #ef4444;">Esto es CORRECTO para predicción pero INCORRECTO para optimización:</strong></p>
+    with col4:
+        st.markdown("""
+        <div class="highlight-box">
+            <h4 style="color: #10b981; margin-top: 0;">Implicación Práctica</h4>
+            <p>La alta variabilidad confirma "ruido humano" fuerte en los precios.</p>
+            <p><strong>Para optimización, primero hay que:</strong></p>
             <ul>
-                <li>El modelo predice LO QUE PASÓ, no LO QUE PASARÍA</li>
-                <li>Reducir descuento en un deal difícil no lo hace más fácil</li>
-                <li>La dificultad es la CAUSA, el descuento es el SÍNTOMA</li>
+                <li>Reducir variabilidad injustificada</li>
+                <li>Implementar guardrails + guidance</li>
+                <li>No modelos sofisticados hasta tener datos limpios</li>
             </ul>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
 
 # =============================================================================
-# PÁGINA 5: SISTEMA DE GUARDRAILS
+# SLIDE 3: DATA READINESS (PARTE 2)
 # =============================================================================
 
-elif page == "05. Sistema de Guardrails":
-    st.markdown('<p class="slide-number">Slide 05 / 06</p>', unsafe_allow_html=True)
-    st.markdown('<h1 class="slide-title">Arquitectura del Sistema de Guardrails</h1>', unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="slide-container">
-        <h3 style="color: #10b981; font-family: 'Crimson Pro', serif;">Diseño de Tres Capas</h3>
-        <div class="slide-content" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
-            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 0.75rem; padding: 1.5rem;">
-                <h4 style="color: #10b981; margin-bottom: 1rem;">Capa 1: Matriz por Tier</h4>
-                <p>Proporciona targets y guardrails base por tier de volumen del cliente.</p>
-                <ul style="font-size: 0.9rem;">
-                    <li>Descuento objetivo</li>
-                    <li>Techo de descuento</li>
-                    <li>Máximo absoluto</li>
-                    <li>Piso de margen</li>
-                </ul>
-            </div>
-            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; border-radius: 0.75rem; padding: 1.5rem;">
-                <h4 style="color: #3b82f6; margin-bottom: 1rem;">Capa 2: Ajustes Contextuales</h4>
-                <p>Modifica targets basado en factores del deal.</p>
-                <ul style="font-size: 0.9rem;">
-                    <li>Categoría de producto</li>
-                    <li>Segmento de cliente</li>
-                    <li>Región geográfica</li>
-                    <li>Situación competitiva</li>
-                </ul>
-            </div>
-            <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid #8b5cf6; border-radius: 0.75rem; padding: 1.5rem;">
-                <h4 style="color: #8b5cf6; margin-bottom: 1rem;">Capa 3: Flujo de Aprobación</h4>
-                <p>Lógica de escalación basada en desviación.</p>
-                <ul style="font-size: 0.9rem;">
-                    <li>🟢 GREEN: Auto-aprobación</li>
-                    <li>🟡 YELLOW: Notificación</li>
-                    <li>🟠 ORANGE: Aprobación gerente</li>
-                    <li>🔴 RED: Aprobación VP</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Tabla de guardrails por tier
-    st.markdown("""
-    <div class="slide-container">
-        <h3 style="color: #3b82f6; font-family: 'Crimson Pro', serif;">Guardrails por Tier de Volumen</h3>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    guardrails_df = pd.DataFrame([
-        {'Tier': 'Standard', 'N': 1689, 'Target': '5.9%', 'Techo': '9.1%', 'Máximo': '14.2%', 'Margen Mín': '14.4%'},
-        {'Tier': 'Bronze', 'N': 748, 'Target': '8.5%', 'Techo': '12.1%', 'Máximo': '16.0%', 'Margen Mín': '12.8%'},
-        {'Tier': 'Silver', 'N': 494, 'Target': '10.9%', 'Techo': '14.4%', 'Máximo': '18.2%', 'Margen Mín': '10.4%'},
-        {'Tier': 'Gold', 'N': 191, 'Target': '14.7%', 'Techo': '17.9%', 'Máximo': '23.0%', 'Margen Mín': '6.7%'},
-        {'Tier': 'Platinum', 'N': 45, 'Target': '17.9%', 'Techo': '21.0%', 'Máximo': '26.5%', 'Margen Mín': '1.4%'}
-    ])
-    
-    st.dataframe(
-        guardrails_df,
-        use_container_width=True,
-        hide_index=True
-    )
+elif page == "03. Data Readiness (Parte 2)":
+    st.markdown('<p class="slide-number">Slide 03 / 08</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="slide-title">1. Data Readiness Assessment (Parte 2)</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle" style="font-size: 1rem;">Qué segmentos tienen data suficiente y dónde enfocar</p>', unsafe_allow_html=True)
     
     col1, col2 = st.columns([1, 1])
     
     with col1:
         st.markdown("""
         <div class="slide-container">
-            <h4 style="color: #10b981;">Ajustes por Categoría</h4>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 0.5rem;">Flat</td><td style="text-align: right;">-0.10%</td></tr>
-                <tr><td style="padding: 0.5rem;">Long</td><td style="text-align: right;">+0.10%</td></tr>
-                <tr><td style="padding: 0.5rem;">Tubular</td><td style="text-align: right;">-0.15%</td></tr>
-                <tr><td style="padding: 0.5rem;">Processed</td><td style="text-align: right;">+0.00%</td></tr>
-            </table>
+            <h3 style="color: #10b981; font-family: 'Crimson Pro', serif;">Data Suficiente por Segmento</h3>
+            <div class="slide-content">
+                <h4 style="color: #3b82f6;">Productos (✅ Suficiente)</h4>
+                <p>Cada producto tiene ~188-249 transacciones → suficiente para análisis.</p>
+                
+                <h4 style="color: #3b82f6;">Producto × Segmento</h4>
+                <ul>
+                    <li>≥30 transacciones: <strong>100%</strong> cumplen</li>
+                    <li>≥50 transacciones: <strong>~68%</strong> cumplen</li>
+                    <li>Zonas "thin" concentradas en segmento <strong>"Other"</strong></li>
+                </ul>
+                
+                <div class="highlight-box">
+                    <strong style="color: #10b981;">Implicación:</strong><br>
+                    <ul style="margin-bottom: 0;">
+                        <li>Manufacturing y Construction: modelar por segmento con estabilidad</li>
+                        <li>Other: usar pooling/hierarchical, reglas más agregadas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        # Tabla de segmentos críticos
+        st.markdown("""
+        <div class="slide-container">
+            <h3 style="color: #ef4444; font-family: 'Crimson Pro', serif;">Segmentos que Más Erosionan Margen</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        critical_segments = pd.DataFrame({
+            'Segmento + Tier': ['Manufacturing + Platinum', 'Construction + Gold', 'Manufacturing + Gold'],
+            'GM%': ['7.69%', '~11%', '~12%'],
+            'Descuento Medio': ['18.74%', '~15%', '~15%'],
+            'Win Rate': ['48.9%', '~52%', '~55%']
+        })
+        
+        st.dataframe(critical_segments, use_container_width=True, hide_index=True)
+        
+        st.markdown("""
+        <div class="highlight-box-warning" style="margin-top: 1rem;">
+            <strong style="color: #f59e0b;">Foco de Optimización:</strong><br>
+            Estos segmentos tienen descuento "habitual" pero win-rate que no lo justifica.
+            Es donde puedes subir margen hacia 20% sin matar volumen.
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Conclusión de Readiness
+    st.markdown("""
+    <div class="slide-container">
+        <h3 style="color: #3b82f6; font-family: 'Crimson Pro', serif;">Conclusión de Data Readiness</h3>
+        <div class="slide-content">
+            <div class="highlight-box" style="border-width: 2px;">
+                <p style="font-size: 1.1rem; margin: 0;">
+                    <strong style="color: #10b981;">SÍ hay data usable</strong> para empezar con reglas + guidance + modelos simples y explicables.
+                </p>
+                <p style="font-size: 1.1rem; margin: 1rem 0 0;">
+                    <strong style="color: #ef4444;">NO hay condiciones</strong> para "full ML optimization" sin antes resolver:
+                </p>
+                <ul style="margin-top: 0.5rem;">
+                    <li>Outcome noise (Re-quoted, inconsistencia Win/Loss)</li>
+                    <li>Linking de oportunidades (quote_id ≠ opportunity_id)</li>
+                    <li>Control de quote→invoice erosion</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# =============================================================================
+# SLIDE 4: ENFOQUE DE OPTIMIZACIÓN (PARTE 1)
+# =============================================================================
+
+elif page == "04. Enfoque de Optimización (Parte 1)":
+    st.markdown('<p class="slide-number">Slide 04 / 08</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="slide-title">2. Recommended Optimization Approach (Parte 1)</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle" style="font-size: 1rem;">Lo que SÍ recomendamos implementar</p>', unsafe_allow_html=True)
+    
+    # Cuatro pilares de la estrategia
+    st.markdown("""
+    <div class="slide-content" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="slide-container">
+            <h4 style="color: #10b981; margin-bottom: 1rem;">1️⃣ Segmented Pricing + Guardrails</h4>
+            <p style="font-size: 0.9rem;"><strong>Fase 0-1 (Quick Win)</strong></p>
+            <ul style="font-size: 0.85rem;">
+                <li>Bandas de precio/descuento por segmento + tier + categoría</li>
+                <li>Piso de margen por categoría</li>
+                <li>Cap de descuento por tier</li>
+                <li>Thin data → reglas agregadas (pooling)</li>
+            </ul>
+            <div class="highlight-box" style="padding: 1rem;">
+                <strong>Justificación:</strong> 71.74% de pares tienen rango >5%<br>
+                → Primero estandarizar, luego optimizar
+            </div>
+        </div>
+        
+        <div class="slide-container">
+            <h4 style="color: #3b82f6; margin-bottom: 1rem;">2️⃣ Deal Scoring (Win Probability)</h4>
+            <p style="font-size: 0.9rem;"><strong>Modelo explicable con Won/Lost</strong></p>
+            <ul style="font-size: 0.85rem;">
+                <li>Features: discount_pct, days_to_close, segment, tier, category, region</li>
+                <li>Entrenar SOLO con Won/Lost</li>
+                <li>Excluir Re-quoted (tratarlo como workflow)</li>
+            </ul>
+            <div class="highlight-box-blue" style="padding: 1rem;">
+                <strong>Insight clave:</strong><br>
+                0-10% descuento → ~80% win-rate<br>
+                15-20% descuento → 54% win-rate<br>
+                Más descuento NO compra win-rate
+            </div>
+        </div>
+        
+        <div class="slide-container">
+            <h4 style="color: #f59e0b; margin-bottom: 1rem;">3️⃣ Margin-Constrained Price Recommendation</h4>
+            <p style="font-size: 0.9rem;"><strong>Optimización "safe" con restricciones</strong></p>
+            <ul style="font-size: 0.85rem;">
+                <li>Función objetivo: Expected Profit = (p - c) × q × P(win | p)</li>
+                <li>Grid search sobre descuentos candidatos</li>
+                <li>Restricción: margen mínimo por categoría/tier</li>
+                <li>No recomendar descuento si win-prob no mejora</li>
+            </ul>
+            <div class="highlight-box-warning" style="padding: 1rem;">
+                <strong>Resultado:</strong> Si a 0-5% ya ganas ~80%,<br>
+                la recomendación puede ser 0% descuento
+            </div>
+        </div>
+        
+        <div class="slide-container">
+            <h4 style="color: #8b5cf6; margin-bottom: 1rem;">4️⃣ Erosion Control (Quote→Invoice)</h4>
+            <p style="font-size: 0.9rem;"><strong>Guardrail crítico para proteger margen</strong></p>
+            <ul style="font-size: 0.85rem;">
+                <li>Monitorear diferencia quoted_price → unit_price</li>
+                <li>Alertas si drift excede umbral</li>
+                <li>Reason codes para ajustes</li>
+                <li>Aprobación si ajuste rompe guardrail</li>
+            </ul>
+            <div class="highlight-box-danger" style="padding: 1rem;">
+                <strong>Problema actual:</strong> Drift -3.87%, 100% termina<br>
+                por debajo del quote. Sin control → no llegas a 20% GM
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# =============================================================================
+# SLIDE 5: ENFOQUE DE OPTIMIZACIÓN (PARTE 2) - RESULTADOS
+# =============================================================================
+
+elif page == "05. Enfoque de Optimización (Parte 2)":
+    st.markdown('<p class="slide-number">Slide 05 / 08</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="slide-title">2. Recommended Optimization Approach (Parte 2)</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle" style="font-size: 1rem;">Resultados del Sistema y Lo que NO Recomendamos</p>', unsafe_allow_html=True)
+    
+    # Métricas del sistema
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.markdown("""
+        <div class="metric-card metric-card-green">
+            <p class="metric-label">Approval Rate</p>
+            <p class="metric-value">5.0%</p>
+            <p class="metric-subtitle">Solo el 5% más riesgoso</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="metric-card metric-card-blue">
+            <p class="metric-label">GM Quote</p>
+            <p class="metric-value">23.24%</p>
+            <p class="metric-subtitle">Lo que controla pricing</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div class="metric-card metric-card-orange">
+            <p class="metric-label">GM Invoice</p>
+            <p class="metric-value">22.17%</p>
+            <p class="metric-subtitle">+2.2pp sobre target 20%</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown("""
+        <div class="metric-card metric-card-purple">
+            <p class="metric-label">Drift After</p>
+            <p class="metric-value">-1.08%</p>
+            <p class="metric-subtitle">Antes: -3.83%</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    col5, col6 = st.columns([1, 1])
+    
+    with col5:
+        st.markdown("""
+        <div class="slide-container">
+            <h3 style="color: #10b981; font-family: 'Crimson Pro', serif;">Monte Carlo: Estabilidad Confirmada</h3>
+            <div class="slide-content">
+                <p><strong>20 runs × 2000 deals cada uno:</strong></p>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                    <tr style="border-bottom: 2px solid #10b981;">
+                        <th style="text-align: left; padding: 0.5rem;">Métrica</th>
+                        <th style="text-align: center; padding: 0.5rem;">Mean</th>
+                        <th style="text-align: center; padding: 0.5rem;">Std</th>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 0.5rem;">Approval Rate</td>
+                        <td style="text-align: center;">4.80%</td>
+                        <td style="text-align: center;">0.51%</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #334155;">
+                        <td style="padding: 0.5rem;">GM Invoice</td>
+                        <td style="text-align: center;">22.20%</td>
+                        <td style="text-align: center;">0.08%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem;">Drift After</td>
+                        <td style="text-align: center;">-1.07%</td>
+                        <td style="text-align: center;">0.02%</td>
+                    </tr>
+                </table>
+                
+                <div class="highlight-box" style="margin-top: 1rem;">
+                    <strong style="color: #10b981;">Sistema production-ready:</strong><br>
+                    No depende del mix, no es frágil, escala.
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col6:
+        st.markdown("""
+        <div class="slide-container">
+            <h3 style="color: #ef4444; font-family: 'Crimson Pro', serif;">❌ Lo que NO Recomendamos (Aún)</h3>
+            <div class="slide-content">
+                <div class="highlight-box-danger">
+                    <h4 style="color: #ef4444; margin-top: 0;">1. Elasticity Modeling "Puro" por SKU</h4>
+                    <p style="margin-bottom: 0;">Precios contaminados por decisiones humanas, outcomes con Re-quoted, post-quote erosion.</p>
+                </div>
+                
+                <div class="highlight-box-danger" style="margin-top: 1rem;">
+                    <h4 style="color: #ef4444; margin-top: 0;">2. Tratar Re-quoted como Lost</h4>
+                    <p style="margin-bottom: 0;">Es una clase propia (15.84%). Distorsiona la relación descuento→win.</p>
+                </div>
+                
+                <div class="highlight-box-danger" style="margin-top: 1rem;">
+                    <h4 style="color: #ef4444; margin-top: 0;">3. "Siempre Dar Descuento"</h4>
+                    <p style="margin-bottom: 0;">0-10% ya tiene ~80% win-rate. Dar más descuento ahí es quemar margen.</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Quote final
+    st.markdown("""
+    <div class="slide-container" style="text-align: center; border: 2px solid #10b981;">
+        <p style="font-size: 1.2rem; font-style: italic; color: #cbd5e1; margin: 0;">
+            "We replaced heuristic discounting with a risk-ranked pricing policy. Instead of approving 
+            everything above a threshold, we approve only the riskiest 5% of deals. This increased 
+            invoice GM from ~18.5% to ~22%, while reducing price erosion by ~70%."
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# =============================================================================
+# SLIDE 6: VALIDATION & TESTING
+# =============================================================================
+
+elif page == "06. Validation & Testing":
+    st.markdown('<p class="slide-number">Slide 06 / 08</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="slide-title">3. Validation & Testing Framework</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle" style="font-size: 1rem;">Cómo validamos antes de desplegar en toda la empresa</p>', unsafe_allow_html=True)
+    
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        st.markdown("""
+        <div class="slide-container">
+            <h3 style="color: #3b82f6; font-family: 'Crimson Pro', serif;">Fase 1: Validación Offline</h3>
+            <div class="slide-content">
+                <h4 style="color: #10b981;">Backtesting: "¿Qué habría pasado si...?"</h4>
+                <p>Simular el nuevo sistema usando datos históricos, sin afectar operaciones.</p>
+                <ul>
+                    <li>Tomar deals históricos</li>
+                    <li>Aplicar precio recomendado por el sistema</li>
+                    <li>Simular erosión real</li>
+                    <li>Medir margen resultante</li>
+                </ul>
+                
+                <div class="highlight-box" style="margin-top: 1rem;">
+                    <strong>Resultados del Backtest:</strong><br>
+                    Margen sube de ~18.5% → ~22%<br>
+                    Solo 5/100 deals requieren aprobación
+                </div>
+                
+                <h4 style="color: #10b981; margin-top: 1.5rem;">Monte Carlo: "¿Es suerte o es estable?"</h4>
+                <p>Miles de combinaciones aleatorias para validar que no depende del mix específico.</p>
+            </div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
         <div class="slide-container">
-            <h4 style="color: #3b82f6;">Ajustes por Segmento</h4>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 0.5rem;">Manufacturing</td><td style="text-align: right;">+0.10%</td></tr>
-                <tr><td style="padding: 0.5rem;">Construction</td><td style="text-align: right;">-0.20%</td></tr>
-                <tr><td style="padding: 0.5rem;">Other</td><td style="text-align: right;">+0.15%</td></tr>
-            </table>
+            <h3 style="color: #f59e0b; font-family: 'Crimson Pro', serif;">Fase 2: Champion / Challenger</h3>
+            <div class="slide-content">
+                <h4 style="color: #10b981;">¿Qué es?</h4>
+                <p><strong>Champion</strong> = proceso actual de precios<br>
+                <strong>Challenger</strong> = nuevo sistema</p>
+                <p>Ambos conviven al mismo tiempo, en una parte del negocio, durante tiempo limitado.</p>
+                
+                <h4 style="color: #10b981; margin-top: 1.5rem;">Implementación Práctica</h4>
+                <ul>
+                    <li>De cada 10 cotizaciones: 8 Champion, 2 Challenger</li>
+                    <li>Asignación aleatoria, balanceando segmentos</li>
+                    <li>Comparación manzanas con manzanas</li>
+                </ul>
+                
+                <div class="highlight-box-warning" style="margin-top: 1rem;">
+                    <strong>NO es un "big bang".</strong><br>
+                    Probamos en pequeño, medimos con dinero real.
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Métricas a medir
+    st.markdown("""
+    <div class="slide-container">
+        <h3 style="color: #10b981; font-family: 'Crimson Pro', serif;">Métricas Durante el Test</h3>
+        <div class="slide-content" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; border-radius: 0.75rem; padding: 1.5rem;">
+                <h4 style="color: #3b82f6; margin-bottom: 1rem;">💰 Métricas de Dinero</h4>
+                <ul style="font-size: 0.9rem;">
+                    <li>Margen real facturado (invoice GM)</li>
+                    <li>Erosión quote→invoice</li>
+                </ul>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 0.75rem; padding: 1.5rem;">
+                <h4 style="color: #10b981; margin-bottom: 1rem;">📈 Métricas Comerciales</h4>
+                <ul style="font-size: 0.9rem;">
+                    <li>Win rate</li>
+                    <li>Tiempo de cierre</li>
+                    <li>% deals sin descuento</li>
+                </ul>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; border-radius: 0.75rem; padding: 1.5rem;">
+                <h4 style="color: #f59e0b; margin-bottom: 1rem;">⚙️ Métricas Operativas</h4>
+                <ul style="font-size: 0.9rem;">
+                    <li>% deals que requieren aprobación</li>
+                    <li>Tiempo de aprobación</li>
+                    <li>Excepciones solicitadas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Criterios de éxito
+    col3, col4 = st.columns([1, 1])
+    
+    with col3:
+        st.markdown("""
+        <div class="slide-container">
+            <h4 style="color: #10b981;">✅ Criterios de Éxito (Pre-definidos)</h4>
+            <ul>
+                <li>Margen sube al menos <strong>1 punto porcentual</strong></li>
+                <li>Erosión baja al menos <strong>50%</strong></li>
+                <li>Win rate no cae más de <strong>1-2 puntos</strong></li>
+                <li>Aprobaciones cerca del <strong>5%</strong></li>
+            </ul>
+            <p style="margin-top: 1rem;"><strong style="color: #10b981;">Si se cumple → nuevo sistema reemplaza al actual. Sin discusión subjetiva.</strong></p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col4:
+        st.markdown("""
+        <div class="slide-container">
+            <h4 style="color: #ef4444;">🛑 Guardrails Activos</h4>
+            <ul>
+                <li>Sistema no puede recomendar margen negativo</li>
+                <li>Descuentos extremos bloqueados</li>
+                <li>5% más riesgoso pasa por aprobación humana</li>
+            </ul>
+            <div class="highlight-box-danger" style="margin-top: 1rem;">
+                <strong>Kill Switch:</strong> Si métrica clave sale de rango, 
+                se apaga challenger inmediatamente.
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
 
 # =============================================================================
-# PÁGINA 6: HERRAMIENTA DE COTIZACIÓN
+# SLIDE 7: RIESGOS Y MITIGACIÓN
 # =============================================================================
 
-elif page == "06. Herramienta de Cotización":
-    st.markdown('<p class="slide-number">Slide 06 / 06</p>', unsafe_allow_html=True)
-    st.markdown('<h1 class="slide-title">Sistema de Cotización Inteligente</h1>', unsafe_allow_html=True)
+elif page == "07. Riesgos y Mitigación":
+    st.markdown('<p class="slide-number">Slide 07 / 08</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="slide-title">4. Key Risks & Mitigation</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle" style="font-size: 1rem;">¿Cuáles son los riesgos principales? ¿Cómo abordamos la resistencia de ventas?</p>', unsafe_allow_html=True)
+    
+    # Riesgos principales en grid
+    st.markdown("""
+    <div class="slide-content" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="slide-container">
+            <h4 style="color: #ef4444; margin-bottom: 1rem;">Riesgo #1: "El sistema no entiende el contexto humano"</h4>
+            <p style="font-size: 0.9rem;"><strong>Lo que Carlos (VP Sales) teme:</strong> Que el algoritmo reemplace su criterio.</p>
+            <div class="highlight-box" style="padding: 1rem;">
+                <strong style="color: #10b981;">Mitigación:</strong><br>
+                <ul style="margin: 0.5rem 0 0; padding-left: 1rem; font-size: 0.85rem;">
+                    <li>El sistema NO bloquea decisiones humanas</li>
+                    <li>Solo envía a aprobación el 5% más riesgoso</li>
+                    <li>95% de deals → vendedor cotiza rápido</li>
+                    <li>"Es un copiloto, no piloto automático"</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="slide-container">
+            <h4 style="color: #ef4444; margin-bottom: 1rem;">Riesgo #2: "Esto nos va a volver más lentos"</h4>
+            <p style="font-size: 0.9rem;"><strong>Trauma previo:</strong> PriceFx aumentó tiempo de cotización.</p>
+            <div class="highlight-box" style="padding: 1rem;">
+                <strong style="color: #10b981;">Mitigación:</strong><br>
+                <ul style="margin: 0.5rem 0 0; padding-left: 1rem; font-size: 0.85rem;">
+                    <li>Aprobaciones históricas: difusas, frecuentes</li>
+                    <li>Nuevo sistema: <strong>5% fijo</strong>, predecible</li>
+                    <li>"Hoy no sabes cuántos van a aprobación. Con esto lo sabes: 5 de cada 100."</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="slide-container">
+            <h4 style="color: #ef4444; margin-bottom: 1rem;">Riesgo #3: "Protege margen en deals que ya íbamos a perder"</h4>
+            <p style="font-size: 0.9rem;"><strong>Objeción clásica de ventas.</strong></p>
+            <div class="highlight-box" style="padding: 1rem;">
+                <strong style="color: #10b981;">Mitigación (con datos):</strong><br>
+                <table style="font-size: 0.8rem; margin-top: 0.5rem;">
+                    <tr><td>0-10% descuento:</td><td><strong>~80% win-rate</strong></td></tr>
+                    <tr><td>15-20% descuento:</td><td>54% win-rate</td></tr>
+                    <tr><td>20-25% descuento:</td><td>35% win-rate</td></tr>
+                </table>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem;">"No te quito armas. Te quito balas desperdiciadas."</p>
+            </div>
+        </div>
+        
+        <div class="slide-container">
+            <h4 style="color: #ef4444; margin-bottom: 1rem;">Riesgo #4: "La data está sucia"</h4>
+            <p style="font-size: 0.9rem;"><strong>Preocupación legítima de María (Pricing Manager).</strong></p>
+            <div class="highlight-box" style="padding: 1rem;">
+                <strong style="color: #10b981;">Mitigación por diseño:</strong><br>
+                <ul style="margin: 0.5rem 0 0; padding-left: 1rem; font-size: 0.85rem;">
+                    <li>NO elasticidad por SKU (requiere data limpia)</li>
+                    <li>Pooling por segmento/tier/categoría</li>
+                    <li>Re-quotes excluidos del win-model</li>
+                    <li>Thin data → reglas agregadas</li>
+                    <li>"Este sistema asume data real, no perfecta"</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Incentivo y conclusión
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        st.markdown("""
+        <div class="slide-container" style="border: 2px solid #10b981;">
+            <h4 style="color: #10b981;">🎯 Convertir Resistencia en Alianza</h4>
+            <div class="slide-content">
+                <p><strong>Palanca final: Comisiones</strong></p>
+                <ul>
+                    <li>Menos descuentos innecesarios</li>
+                    <li>Más margen por deal</li>
+                    <li>Mejores comisiones para el equipo</li>
+                </ul>
+                <div class="highlight-box" style="margin-top: 1rem;">
+                    <strong>"Si el equipo gana el mismo número de deals con menos descuento, todos ganan más."</strong>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="slide-container" style="border: 2px solid #3b82f6;">
+            <h4 style="color: #3b82f6;">Mensaje para Stakeholders</h4>
+            <div class="slide-content">
+                <p style="font-style: italic; font-size: 0.95rem;">
+                    "The main risks are sales resistance, data quality concerns, and operational friction. 
+                    We mitigate these by design: the system does not replace sales judgment, limits approvals 
+                    to the riskiest 5% of deals, and is robust to imperfect data."
+                </p>
+                <p style="font-style: italic; font-size: 0.95rem; margin-top: 1rem;">
+                    "It reduces price erosion, protects margin, and preserves sales velocity. 
+                    Most importantly, it helps sales win the right deals with less unnecessary discounting—
+                    aligning incentives across Sales, Pricing, and Finance."
+                </p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+# =============================================================================
+# SLIDE 8: DEMO DEL SISTEMA
+# =============================================================================
+
+elif page == "08. Demo del Sistema":
+    st.markdown('<p class="slide-number">Slide 08 / 08</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="slide-title">Demo: Sistema de Cotización Inteligente</h1>', unsafe_allow_html=True)
     
     col1, col2 = st.columns([1, 2])
     
@@ -1152,6 +1420,21 @@ elif page == "06. Herramienta de Cotización":
                 <strong style="color: {evaluation['color']};">{evaluation['message']}</strong>
             </div>
             """, unsafe_allow_html=True)
+            
+            # Explicación del sistema
+            st.markdown("""
+            <div class="slide-container" style="margin-top: 1rem;">
+                <h4 style="color: #3b82f6;">¿Cómo funciona este sistema?</h4>
+                <div class="slide-content" style="font-size: 0.9rem;">
+                    <ul>
+                        <li><strong>Precio Objetivo:</strong> Descuento base por tier + ajustes por categoría, segmento y región</li>
+                        <li><strong>Precio Techo:</strong> Máximo antes de requerir aprobación de gerente</li>
+                        <li><strong>Margen Mínimo:</strong> Piso absoluto que protege rentabilidad</li>
+                        <li><strong>Curva Win-Prob:</strong> Basada en datos históricos, muestra que más descuento NO siempre mejora win-rate</li>
+                    </ul>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
         
         else:
             st.markdown("""
@@ -1159,6 +1442,9 @@ elif page == "06. Herramienta de Cotización":
                 <p style="font-size: 1.25rem; color: #94a3b8;">
                     Seleccione un cliente, producto y cantidad, luego haga clic en 
                     <strong style="color: #10b981;">"Calcular Guía de Precios"</strong>
+                </p>
+                <p style="font-size: 1rem; color: #64748b; margin-top: 1rem;">
+                    Este demo muestra cómo el sistema de guardrails recomienda precios y evalúa cotizaciones en tiempo real.
                 </p>
             </div>
             """, unsafe_allow_html=True)
