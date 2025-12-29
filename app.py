@@ -1127,7 +1127,6 @@ elif page == "07. Riesgos y Mitigación":
                 Estos riesgos se mitigan desde el diseño: el sistema no reemplaza el criterio comercial, limita las aprobaciones únicamente al 5% de las operaciones más riesgosas y es robusto frente a datos imperfectos.”
             </p>
             <p style="font-style: italic; font-size: 0.9rem; margin-top: 1rem; color: #cbd5e1;">
-                "It reduces price erosion, protects margin, and preserves sales velocity."
             </p>
         </div>
         """, unsafe_allow_html=True)
